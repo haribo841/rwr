@@ -15,11 +15,6 @@ run/main_scene="uid://bsbxok8cu47al"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
-[rendering]
-
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
-
 [xr]
 
 shaders/enabled=true

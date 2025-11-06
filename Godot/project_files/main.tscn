@@ -12,6 +12,7 @@ script = ExtResource("1_ig7tw")
 [node name="XROrigin3D" type="XROrigin3D" parent="."]
 
 [node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9656887, 0, 1.5605719)
 
 [node name="LeftController" type="XRController3D" parent="XROrigin3D"]
 tracker = &"left_hand"
@@ -24,12 +25,15 @@ mesh = SubResource("BoxMesh_noarx")
 tracker = &"right_hand"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="XROrigin3D/RightController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4469624, 0, 0)
 custom_aabb = AABB(0.1, 0.1, 0.1, 0.1, 0.1, 0.1)
 mesh = SubResource("BoxMesh_a0tk4")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Button" type="Button" parent="CanvasLayer"]
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = 38.0
+offset_top = 26.0
+offset_right = 1110.0
+offset_bottom = 585.0
 text = "Enter VR"
