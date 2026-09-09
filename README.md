@@ -2,18 +2,28 @@
 
 Two small interactive prototypes collected in one repository: a Unity 2D platformer experiment and a Godot WebXR navigation experiment.
 
-[Source code](https://github.com/haribo841/rwr) | [Unity project](Unity/) | [WebXR project](webxr-demo/) | [Report an issue](https://github.com/haribo841/rwr/issues)
+[Play the live WebXR demo](https://haribo841.github.io/rwr/) | [Source code](https://github.com/haribo841/rwr) | [Unity project](Unity/) | [WebXR project](webxr-demo/) | [Report an issue](https://github.com/haribo841/rwr/issues)
 
 ## Choose a prototype
 
 | Prototype | What it demonstrates | Starting point |
 | --- | --- | --- |
 | Unity 2D platformer | Horizontal movement, jumping, animation states, sprite direction, and a camera that follows the player. | [`Unity/Assets/Scenes/SampleScene.unity`](Unity/Assets/Scenes/SampleScene.unity) |
-| Godot WebXR experiment | WebXR session detection, thumbstick locomotion, raycast teleportation, and controller input handling. | [`webxr-demo/project.godot`](webxr-demo/project.godot) |
+| Godot WebXR experiment | WebXR session detection, thumbstick locomotion, raycast teleportation, and controller input handling. | [Play online](https://haribo841.github.io/rwr/) or inspect [`webxr-demo/project.godot`](webxr-demo/project.godot) |
+
+## Live preview
+
+[![Deployed WebXR scene with a grassy terrain, trees, and virtual controllers](docs/assets/readme/webxr-world.png)](https://haribo841.github.io/rwr/)
+
+*The Godot WebXR scene deployed at [haribo841.github.io/rwr](https://haribo841.github.io/rwr/).*
 
 ## Quick start
 
-There is no packaged release. Run a prototype from source or evaluate the included browser export.
+The fastest way to try the repository is the [live WebXR demo](https://haribo841.github.io/rwr/). There is no packaged desktop or mobile release.
+
+### Play online
+
+Open [haribo841.github.io/rwr](https://haribo841.github.io/rwr/) in a modern browser. You can explore the scene in the browser; a WebXR-compatible browser and headset are required to enter immersive VR.
 
 ### Unity platformer
 
@@ -21,7 +31,7 @@ There is no packaged release. Run a prototype from source or evaluate the includ
 2. Open the `Unity` folder as a project.
 3. Open `Assets/Scenes/SampleScene.unity` and select **Play**.
 
-### WebXR experiment
+### WebXR source project
 
 1. Install Godot `4.5` and import `webxr-demo/project.godot` to inspect or modify the source project.
 2. To serve the included browser export locally, run:
