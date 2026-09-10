@@ -64,7 +64,7 @@ function ensureCrossOriginIsolationHeaders(response) {
  * @param {FetchEvent} event
  * @param {Cache} cache
  * @param {boolean} isCacheable
- * @returns {Response}
+ * @returns {Promise<Response>}
  */
 async function fetchAndCache(event, cache, isCacheable) {
 	// Use the preloaded response, if it's there
@@ -99,7 +99,7 @@ self.addEventListener(
 		const referrer = event.request.referrer || '';
 		const base = referrer.slice(0, referrer.lastIndexOf('/') + 1);
 		const local = url.startsWith(base) ? url.replace(base, '') : '';
-		const isCacheable = FULL_CACHE.some((v) => v === local) || (base === referrer && base.endsWith(CACHED_FILES[0]));
+		const isCacheable = FULL_CACHE.includes(local) || (base === referrer && base.endsWith(CACHED_FILES[0]));
 		if (isNavigate || isCacheable) {
 			event.respondWith((async () => {
 				// Try to use cache first
@@ -108,7 +108,7 @@ self.addEventListener(
 					// Check if we have full cache during HTML page request.
 					/** @type {Response[]} */
 					const fullCache = await Promise.all(FULL_CACHE.map((name) => cache.match(name)));
-					const missing = fullCache.some((v) => v === undefined);
+					const missing = fullCache.includes(undefined);
 					if (missing) {
 						try {
 							// Try network if some cached file is missing (so we can display offline page in case).

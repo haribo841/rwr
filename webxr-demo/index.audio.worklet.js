@@ -153,42 +153,51 @@ class GodotProcessor extends AudioWorkletProcessor {
 		if (this.output === null) {
 			return true; // Not ready yet, keep processing.
 		}
-		const process_input = GodotProcessor.array_has_data(inputs);
-		if (process_input) {
-			const input = inputs[0];
-			const chunk = input[0].length * input.length;
-			if (this.input_buffer.length !== chunk) {
-				this.input_buffer = new Float32Array(chunk);
-			}
-			if (!this.threads) {
-				GodotProcessor.write_input(this.input_buffer, input);
-				this.port.postMessage({ 'cmd': 'input', 'data': this.input_buffer });
-			} else if (this.input.space_left() >= chunk) {
-				GodotProcessor.write_input(this.input_buffer, input);
-				this.input.write(this.input_buffer);
-			} else {
-				// this.port.postMessage('Input buffer is full! Skipping input frame.'); // Uncomment this line to debug input buffer.
-			}
-		}
-		const process_output = GodotProcessor.array_has_data(outputs);
-		if (process_output) {
-			const output = outputs[0];
-			const chunk = output[0].length * output.length;
-			if (this.output_buffer.length !== chunk) {
-				this.output_buffer = new Float32Array(chunk);
-			}
-			if (this.output.data_left() >= chunk) {
-				this.output.read(this.output_buffer);
-				GodotProcessor.write_output(output, this.output_buffer);
-				if (!this.threads) {
-					this.port.postMessage({ 'cmd': 'read', 'data': chunk });
-				}
-			} else {
-				// this.port.postMessage('Output buffer has not enough frames! Skipping output frame.'); // Uncomment this line to debug output buffer.
-			}
-		}
+		this.process_input(inputs);
+		this.process_output(outputs);
 		this.process_notify();
 		return true;
+	}
+
+	process_input(inputs) {
+		if (!GodotProcessor.array_has_data(inputs)) {
+			return;
+		}
+		const input = inputs[0];
+		const chunk = input[0].length * input.length;
+		if (this.input_buffer.length !== chunk) {
+			this.input_buffer = new Float32Array(chunk);
+		}
+		if (this.threads && this.input.space_left() < chunk) {
+			// this.port.postMessage('Input buffer is full! Skipping input frame.'); // Uncomment this line to debug input buffer.
+			return;
+		}
+		GodotProcessor.write_input(this.input_buffer, input);
+		if (!this.threads) {
+			this.port.postMessage({ 'cmd': 'input', 'data': this.input_buffer });
+			return;
+		}
+		this.input.write(this.input_buffer);
+	}
+
+	process_output(outputs) {
+		if (!GodotProcessor.array_has_data(outputs)) {
+			return;
+		}
+		const output = outputs[0];
+		const chunk = output[0].length * output.length;
+		if (this.output_buffer.length !== chunk) {
+			this.output_buffer = new Float32Array(chunk);
+		}
+		if (this.output.data_left() < chunk) {
+			// this.port.postMessage('Output buffer has not enough frames! Skipping output frame.'); // Uncomment this line to debug output buffer.
+			return;
+		}
+		this.output.read(this.output_buffer);
+		GodotProcessor.write_output(output, this.output_buffer);
+		if (!this.threads) {
+			this.port.postMessage({ 'cmd': 'read', 'data': chunk });
+		}
 	}
 
 	static write_output(dest, source) {

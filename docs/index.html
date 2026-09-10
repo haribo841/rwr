@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>New Game Project</title>
 		<style>
 html, body, #canvas {
@@ -147,7 +147,7 @@ const engine = new Engine(GODOT_CONFIG);
 
 	function setStatusNotice(text) {
 		while (statusNotice.lastChild) {
-			statusNotice.removeChild(statusNotice.lastChild);
+			statusNotice.lastChild.remove();
 		}
 		const lines = text.split('\n');
 		lines.forEach((line) => {
@@ -185,7 +185,7 @@ const engine = new Engine(GODOT_CONFIG);
 			Promise.race([
 				serviceWorkerRegistrationPromise.then((registration) => {
 					if (registration != null) {
-						return Promise.reject(new Error('Service worker already exists.'));
+						throw new Error('Service worker already exists.');
 					}
 					return registration;
 				}).then(() => engine.installServiceWorker()),
@@ -224,4 +224,3 @@ const engine = new Engine(GODOT_CONFIG);
 		</script>
 	</body>
 </html>
-
