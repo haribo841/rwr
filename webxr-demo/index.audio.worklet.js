@@ -142,10 +142,6 @@ class GodotProcessor extends AudioWorkletProcessor {
 		}
 	}
 
-	static array_has_data(arr) {
-		return arr.length && arr[0].length && arr[0][0].length;
-	}
-
 	process(inputs, outputs, parameters) {
 		if (!this.running) {
 			return false; // Stop processing.
@@ -153,51 +149,71 @@ class GodotProcessor extends AudioWorkletProcessor {
 		if (this.output === null) {
 			return true; // Not ready yet, keep processing.
 		}
-		this.process_input(inputs);
-		this.process_output(outputs);
+		this.mix_input(inputs[0]);
+		this.mix_output(outputs[0]);
 		this.process_notify();
 		return true;
 	}
 
-	process_input(inputs) {
-		if (!GodotProcessor.array_has_data(inputs)) {
+	mix_input(channels) {
+		if (!this.has_audio_frame(channels)) {
 			return;
 		}
-		const input = inputs[0];
-		const chunk = input[0].length * input.length;
-		if (this.input_buffer.length !== chunk) {
-			this.input_buffer = new Float32Array(chunk);
-		}
-		if (this.threads && this.input.space_left() < chunk) {
-			// this.port.postMessage('Input buffer is full! Skipping input frame.'); // Uncomment this line to debug input buffer.
+		const sample_count = this.get_sample_count(channels);
+		this.prepare_input_buffer(sample_count);
+		if (this.threads && this.input.space_left() < sample_count) {
+			// No room in the shared input ring; skip this frame.
 			return;
 		}
-		GodotProcessor.write_input(this.input_buffer, input);
-		if (!this.threads) {
-			this.port.postMessage({ 'cmd': 'input', 'data': this.input_buffer });
-			return;
-		}
-		this.input.write(this.input_buffer);
+		GodotProcessor.write_input(this.input_buffer, channels);
+		this.queue_input();
 	}
 
-	process_output(outputs) {
-		if (!GodotProcessor.array_has_data(outputs)) {
+	mix_output(channels) {
+		if (!this.has_audio_frame(channels)) {
 			return;
 		}
-		const output = outputs[0];
-		const chunk = output[0].length * output.length;
-		if (this.output_buffer.length !== chunk) {
-			this.output_buffer = new Float32Array(chunk);
-		}
-		if (this.output.data_left() < chunk) {
-			// this.port.postMessage('Output buffer has not enough frames! Skipping output frame.'); // Uncomment this line to debug output buffer.
+		const sample_count = this.get_sample_count(channels);
+		this.prepare_output_buffer(sample_count);
+		if (this.output.data_left() < sample_count) {
+			// The output ring has no complete frame to render yet.
 			return;
 		}
 		this.output.read(this.output_buffer);
-		GodotProcessor.write_output(output, this.output_buffer);
-		if (!this.threads) {
-			this.port.postMessage({ 'cmd': 'read', 'data': chunk });
+		GodotProcessor.write_output(channels, this.output_buffer);
+		if (this.threads) {
+			return;
 		}
+		this.port.postMessage({ 'cmd': 'read', 'data': sample_count });
+	}
+
+	has_audio_frame(channels) {
+		return Boolean(channels?.length && channels[0]?.length);
+	}
+
+	get_sample_count(channels) {
+		return channels[0].length * channels.length;
+	}
+
+	prepare_input_buffer(sample_count) {
+		if (sample_count !== this.input_buffer.length) {
+			this.input_buffer = new Float32Array(sample_count);
+		}
+	}
+
+	prepare_output_buffer(sample_count) {
+		if (sample_count === this.output_buffer.length) {
+			return;
+		}
+		this.output_buffer = new Float32Array(sample_count);
+	}
+
+	queue_input() {
+		if (this.threads) {
+			this.input.write(this.input_buffer);
+			return;
+		}
+		this.port.postMessage({ 'cmd': 'input', 'data': this.input_buffer });
 	}
 
 	static write_output(dest, source) {

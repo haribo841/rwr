@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta content="initial-scale=1.0, width=device-width" name="viewport">
 		<title>New Game Project</title>
 		<style>
 html, body, #canvas {
@@ -132,9 +132,7 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function setStatusNotice(text) {
-		while (statusNotice.lastChild) {
-			statusNotice.lastChild.remove();
-		}
+		statusNotice.replaceChildren();
 		const lines = text.split('\n');
 		lines.forEach((line) => {
 			statusNotice.appendChild(document.createTextNode(line));
@@ -165,7 +163,8 @@ const engine = new Engine(GODOT_CONFIG);
 			Promise.race([
 				navigator.serviceWorker.getRegistration().then((registration) => {
 					if (registration != null) {
-						throw new Error('Service worker already exists.');
+						const registrationError = new Error('Service worker already exists.');
+						throw registrationError;
 					}
 					return registration;
 				}).then(() => engine.installServiceWorker()),
